@@ -6,7 +6,7 @@ module OmniFocus::Trello
   PREFIX  = "TR"
   KEY = "3ad9e72a2e2d41a98450ca775a0bafe4"
 
-  def load_or_create_config
+  def load_or_create_trello_config
     path   = File.expand_path "~/.omnifocus-trello.yml"
     config = YAML.load(File.read(path)) rescue nil
 
@@ -24,23 +24,23 @@ module OmniFocus::Trello
   end
 
   def populate_trello_tasks
-    config     = load_or_create_config
+    config     = load_or_create_trello_config
     token      = config[:token]
     done_lists = config[:done_lists]
 
-    boards = fetch_boards(token)
-    fetch_cards(token).each do |card|
-      process_card(boards, done_lists, card)
+    boards = fetch_trello_boards(token)
+    fetch_trello_cards(token).each do |card|
+      process_trello_card(boards, done_lists, card)
     end
   end
 
-  def fetch_cards(token)
+  def fetch_trello_cards(token)
     url = "https://api.trello.com/1/members/my/cards?key=#{KEY}&token=#{token}"
 
     JSON.parse(open(url).read)
   end
 
-  def process_card(boards, done_lists, card)
+  def process_trello_card(boards, done_lists, card)
     number       = card["idShort"]
     url          = card["shortUrl"]
     board        = boards.find {|board| board["id"] == card["idBoard"] }
@@ -62,7 +62,7 @@ module OmniFocus::Trello
     bug_db[project_name][ticket_id] = [title, url]
   end
 
-  def fetch_boards(token)
+  def fetch_trello_boards(token)
     url = "https://api.trello.com/1/members/my/boards?key=#{KEY}&token=#{token}&lists=open"
     JSON.parse(open(url).read)
   end
