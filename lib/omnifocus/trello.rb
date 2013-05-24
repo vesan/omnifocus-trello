@@ -26,11 +26,11 @@ module OmniFocus::Trello
   def populate_trello_tasks
     config     = load_or_create_trello_config
     token      = config[:token]
-    done_lists = config[:done_lists]
+    done_boards = config[:done_boards]
 
     boards = fetch_trello_boards(token)
     fetch_trello_cards(token).each do |card|
-      process_trello_card(boards, done_lists, card)
+      process_trello_card(boards, done_boards, card)
     end
   end
 
@@ -40,7 +40,7 @@ module OmniFocus::Trello
     JSON.parse(open(url).read)
   end
 
-  def process_trello_card(boards, done_lists, card)
+  def process_trello_card(boards, done_boards, card)
     number       = card["idShort"]
     url          = card["shortUrl"]
     board        = boards.find {|board| board["id"] == card["idBoard"] }
@@ -50,7 +50,7 @@ module OmniFocus::Trello
     list         = board["lists"].find {|list| list["id"] == card["idList"] }
 
     # If card is in a "done" list, mark it as completed.
-    if done_lists.include?(list["name"])
+    if done_boards.include?(list["name"])
       return
     end
 
