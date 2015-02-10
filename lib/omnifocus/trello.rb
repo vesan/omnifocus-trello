@@ -42,12 +42,16 @@ module OmniFocus::Trello
 
   def process_trello_card(boards, done_boards, card)
     number       = card["idShort"]
-    url          = card["shortUrl"]
-    board        = boards.find {|board| board["id"] == card["idBoard"] }
+    description  = if card["desc"].length > 0
+      card["shortUrl"] + "\n\n" + card["desc"]
+    else
+      card["shortUrl"]
+    end
+    board        = boards.find {|candidate| candidate["id"] == card["idBoard"] }
     project_name = board["name"]
     ticket_id    = "#{PREFIX}-#{project_name}##{number}"
     title        = "#{ticket_id}: #{card["name"]}"
-    list         = board["lists"].find {|list| list["id"] == card["idList"] }
+    list         = board["lists"].find {|candidate| candidate["id"] == card["idList"] }
 
     # If card is in a "done" list, mark it as completed.
     if done_boards.include?(list["name"])
@@ -59,7 +63,7 @@ module OmniFocus::Trello
       return
     end
 
-    bug_db[project_name][ticket_id] = [title, url]
+    bug_db[project_name][ticket_id] = [title, description]
   end
 
   def fetch_trello_boards(token)
