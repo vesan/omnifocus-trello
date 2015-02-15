@@ -15,5 +15,5 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = OmniFocus::Trello::VERSION
 
-  gem.add_dependency "omnifocus", "~> 2.1"
+  gem.add_dependency "omnifocus", "~> 2.2"
 end
