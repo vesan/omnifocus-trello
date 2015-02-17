@@ -22,6 +22,15 @@ configurable using the config file.
 3. (On the first run, configuration file will be generated at
    ~/.omnifocus-trello.yml. Follow to instructions to get a token.)
 
+# Changing the default Folder for trello boards.
+
+By default, the OmniFocus projects created from your trello boards will be stored in a folder called "nerd". To change this, set an environment variable called 'OF_FOLDER'. You can do this by adding the following to your `bash_profile` or similar:
+
+    export OF_FOLDER="My Trello Boards"
+
+Note that this environment variable is used by the [omnifocus](https://github.com/seattlerb/omnifocus) gem, so will apply to any other gems that rely on that.
+
+
 ## Contributing
 
 1. Fork it
