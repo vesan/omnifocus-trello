@@ -11,7 +11,7 @@ module OmniFocus::Trello
     config = YAML.load(File.read(path)) rescue nil
 
     unless config then
-      config = { :token => "Open URL https://trello.com/1/authorize?key=#{KEY}&name=OmniFocus+Trello+integration&expiration=never&response_type=token and copy the token from the web page here.", :done_boards => ["Done", "Deployed", "Finished", "Cards in these boards are considered done, you add and remove names to fit your workflow."] }
+      config = { :token => "Open URL https://trello.com/1/authorize?key=#{KEY}&name=OmniFocus+Trello+integration&expiration=never&response_type=token and copy the token from the web page here.", :done_lists => ["Done", "Deployed", "Finished", "Cards in these boards are considered done, you add and remove names to fit your workflow."] }
 
       File.open(path, "w") { |f|
         YAML.dump(config, f)
@@ -26,11 +26,11 @@ module OmniFocus::Trello
   def populate_trello_tasks
     config     = load_or_create_trello_config
     token      = config[:token]
-    done_boards = config[:done_boards]
+    done_lists = config[:done_lists] || config[:done_boards]
 
     boards = fetch_trello_boards(token)
     fetch_trello_cards(token).each do |card|
-      process_trello_card(boards, done_boards, card)
+      process_trello_card(boards, done_lists, card)
     end
   end
 
@@ -40,7 +40,7 @@ module OmniFocus::Trello
     JSON.parse(open(url).read)
   end
 
-  def process_trello_card(boards, done_boards, card)
+  def process_trello_card(boards, done_lists, card)
     number       = card["idShort"]
     description  = if card["desc"].length > 0
       card["shortUrl"] + "\n\n" + card["desc"]
@@ -54,7 +54,7 @@ module OmniFocus::Trello
     list         = board["lists"].find {|candidate| candidate["id"] == card["idList"] }
 
     # If card is in a "done" list, mark it as completed.
-    if done_boards.include?(list["name"])
+    if done_lists.include?(list["name"])
       return
     end
 
